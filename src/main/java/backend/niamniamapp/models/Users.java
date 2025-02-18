@@ -17,6 +17,7 @@ public class Users {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
     @Column(name = "first_name")
     private String firstName;
 
@@ -25,6 +26,8 @@ public class Users {
 
     @Column(nullable = false)
     private String password;
+
+    private String descripcion;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
