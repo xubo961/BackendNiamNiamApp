@@ -76,7 +76,6 @@ public class UsersService {
         LoginResponse login = new LoginResponse(user, token);
         return new ApiDelivery<>("Login success", true, 200, login, "login success");
 
-
     }
 
     public String createToken(String email) {
