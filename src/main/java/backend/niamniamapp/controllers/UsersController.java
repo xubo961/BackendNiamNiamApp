@@ -1,5 +1,8 @@
 package backend.niamniamapp.controllers;
 
+import backend.niamniamapp.dto.ApiDelivery;
+import backend.niamniamapp.dto.LoginRequest;
+import backend.niamniamapp.dto.LoginResponse;
 import backend.niamniamapp.models.Users;
 import backend.niamniamapp.services.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +31,12 @@ public class UsersController {
     public ResponseEntity<Users> createUser(@RequestBody Users user) {
         Users createUser = this.usersService.createUser(user);
         return ResponseEntity.ok(createUser);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<Object> login(@RequestBody LoginRequest credentials) {
+        ApiDelivery<LoginResponse> response = this.usersService.login(credentials.getEmail(), credentials.getPassword());
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
 
 }

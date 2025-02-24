@@ -30,9 +30,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/users/get-users",
-                                "/users/create",
-                                "/roles/get-roles",
-                                "/roles/create"
+                                "/users/create"
                         ).permitAll()
                         .anyRequest().permitAll()
                 )
