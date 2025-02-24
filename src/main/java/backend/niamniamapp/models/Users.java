@@ -1,13 +1,11 @@
 package backend.niamniamapp.models;
 
-
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -37,7 +35,8 @@ public class Users {
 
 //@JsonManagedReference
 
-
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FavoritosReceta> favoritos;
 
     public Long getId() {
         return id;
