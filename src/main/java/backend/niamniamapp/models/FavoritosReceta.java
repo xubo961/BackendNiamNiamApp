@@ -1,10 +1,13 @@
 package backend.niamniamapp.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "favoritos_receta")
@@ -17,27 +20,27 @@ public class FavoritosReceta {
     @Column(nullable = false)
     private Long idReceta;
 
-    @Column(nullable = false)
+    @Column
     private String nameReceta;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column
     private String ingredientsReceta;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column
     private String preparationReceta;
 
-    @Column(nullable = false)
+    @Column
     private String imageReceta;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private Users user;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @ManyToMany(mappedBy = "favoritos", fetch = FetchType.LAZY)
+    @JsonBackReference
+    private List<Users> listUser;
 
     // Getters and setters
 
@@ -89,14 +92,6 @@ public class FavoritosReceta {
         this.imageReceta = imageReceta;
     }
 
-    public Users getUser() {
-        return user;
-    }
-
-    public void setUser(Users user) {
-        this.user = user;
-    }
-
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -111,5 +106,13 @@ public class FavoritosReceta {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public List<Users> getListUser() {
+        return listUser;
+    }
+
+    public void setListUser(List<Users> listUser) {
+        this.listUser = listUser;
     }
 }
