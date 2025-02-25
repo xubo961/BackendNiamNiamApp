@@ -18,15 +18,14 @@ public class FavoritosRecetaController {
 
     // Método para agregar una receta a los favoritos de un usuario
     @PostMapping("/usuario/{userId}/add/{recetaId}")
-    public ResponseEntity<FavoritosReceta> agregarAFavoritos(
-            @PathVariable Long userId,
-            @PathVariable Long recetaId) {
-
+    public ResponseEntity<FavoritosReceta> agregarAFavoritos(@PathVariable Long userId, @PathVariable Long recetaId) {
+        System.out.println("Solicitud para agregar a favoritos recibida: userId=" + userId + ", recetaId=" + recetaId);
         try {
             FavoritosReceta favoritosReceta = favoritosRecetaService.agregarAFavoritos(userId, recetaId);
-            return new ResponseEntity<>(favoritosReceta, HttpStatus.CREATED);  // Código 201 para recurso creado
+            return new ResponseEntity<>(favoritosReceta, HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);  // En caso de error
+            e.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 
