@@ -15,7 +15,6 @@ public class Users {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
     @Column(name = "first_name")
     private String firstName;
 
@@ -25,8 +24,6 @@ public class Users {
     @Column(nullable = false)
     private String password;
 
-    private String descripcion;
-
     @CreationTimestamp
     private LocalDateTime createdAt;
 
@@ -35,8 +32,14 @@ public class Users {
 
 //@JsonManagedReference
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "user_favorito_receta",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "receta_id")
+    )
     private List<FavoritosReceta> favoritos;
+
 
     public Long getId() {
         return id;
@@ -85,4 +88,13 @@ public class Users {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+    public List<FavoritosReceta> getFavoritos() {
+        return favoritos;
+    }
+
+    public void setFavoritos(List<FavoritosReceta> favoritos) {
+        this.favoritos = favoritos;
+    }
+
 }
