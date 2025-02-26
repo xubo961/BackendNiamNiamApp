@@ -40,6 +40,14 @@ public class Users {
     )
     private List<FavoritosReceta> favoritos;
 
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "user_mis_recetas",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "misrecetas_id")
+    )
+    private List<MisRecetas> misrecetas;
+
 
     public Long getId() {
         return id;
@@ -97,4 +105,11 @@ public class Users {
         this.favoritos = favoritos;
     }
 
+    public List<MisRecetas> getMisrecetas() {
+        return misrecetas;
+    }
+
+    public void setMisrecetas(List<MisRecetas> misrecetas) {
+        this.misrecetas = misrecetas;
+    }
 }

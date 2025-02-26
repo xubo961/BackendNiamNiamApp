@@ -10,14 +10,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "favoritos_receta")
-public class FavoritosReceta {
+@Table(name = "mis_recetas")
+public class MisRecetas {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private Long idReceta;
 
     @Column
@@ -38,7 +38,7 @@ public class FavoritosReceta {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @ManyToMany(mappedBy = "favoritos", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "misrecetas", fetch = FetchType.LAZY)
     @JsonBackReference
     private List<Users> listUser;
 

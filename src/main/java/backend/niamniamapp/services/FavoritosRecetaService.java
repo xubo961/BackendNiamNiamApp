@@ -1,8 +1,8 @@
 package backend.niamniamapp.services;
 
 import backend.niamniamapp.models.FavoritosReceta;
-import backend.niamniamapp.models.Users;
 import backend.niamniamapp.repositories.FavoritosRecetaRepository;
+import backend.niamniamapp.models.Users;
 import backend.niamniamapp.repositories.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,84 +14,106 @@ import java.util.Optional;
 @Service
 public class FavoritosRecetaService {
 
-    @Autowired
-    private FavoritosRecetaRepository favoritosRecetaRepository;
+    private final FavoritosRecetaRepository favoritosRecetaRepository;
+    private final UsersRepository usersRepository;
 
     @Autowired
-    private UsersRepository usersRepository;
+    public FavoritosRecetaService(FavoritosRecetaRepository favoritosRecetaRepository, UsersRepository usersRepository) {
+        this.favoritosRecetaRepository = favoritosRecetaRepository;
+        this.usersRepository = usersRepository;
+    }
 
-    // Método para agregar una receta a los favoritos de un usuario
-    @Transactional
-    public FavoritosReceta agregarAFavoritos(Long userId, Long recetaId) {
-        // Buscar el usuario
-        Optional<Users> userOptional = usersRepository.findById(userId);
-        if (!userOptional.isPresent()) {
-            throw new RuntimeException("Usuario no encontrado");
+    // Crear una receta favorita evitando duplicados
+    public FavoritosReceta crearFavoritosReceta(FavoritosReceta favoritosReceta) {
+        if (favoritosRecetaRepository.findByIdReceta(favoritosReceta.getIdReceta()).isPresent()) {
+            throw new IllegalStateException("La receta ya está en favoritos");
         }
-        Users user = userOptional.get();
+        return favoritosRecetaRepository.save(favoritosReceta);
+    }
 
-        // Buscar la receta en favoritos o crear una nueva
-        Optional<FavoritosReceta> favoritosRecetaOptional = favoritosRecetaRepository.findById(recetaId);
-        FavoritosReceta favoritosReceta;
+
+
+    // Obtener todas las recetas favoritas
+    public List<FavoritosReceta> obtenerTodosFavoritos() {
+        return favoritosRecetaRepository.findAll();
+    }
+
+    // Obtener una receta favorita por su ID
+    public Optional<FavoritosReceta> obtenerFavoritosPorId(Long id) {
+        return favoritosRecetaRepository.findById(id);
+    }
+
+    // Obtener recetas favoritas de un usuario específico
+    public List<FavoritosReceta> obtenerFavoritosPorUsuario(Long usuarioId) {
+        Optional<Users> user = usersRepository.findById(usuarioId);
+        if (user.isPresent()) {
+            return user.get().getFavoritos(); // Asumimos que tienes un método getFavoritos() en Users
+        }
+        return null; // O lanzar una excepción si el usuario no existe
+    }
+
+    // Agregar una receta a los favoritos de un usuario
+    @Transactional
+    public FavoritosReceta agregarRecetaAFavoritos(Long usuarioId, Long recetaId) {
+        Optional<Users> user = usersRepository.findById(usuarioId);
+        Optional<FavoritosReceta> receta = favoritosRecetaRepository.findById(recetaId);
+
+        if (user.isPresent() && receta.isPresent()) {
+            Users existingUser = user.get();
+            FavoritosReceta existingReceta = receta.get();
+
+            // Verificar si la receta ya está en los favoritos del usuario
+            if (!existingUser.getFavoritos().contains(existingReceta)) {
+                existingUser.getFavoritos().add(existingReceta);
+                usersRepository.save(existingUser);
+            }
+            return existingReceta;
+        }
+        return null;  // O lanzar una excepción si el usuario o la receta no existen
+    }
+
+    // Eliminar una receta de los favoritos de un usuario
+    @Transactional
+    public boolean eliminarRecetaDeFavoritos(Long usuarioId, Long recetaId) {
+        Optional<Users> user = usersRepository.findById(usuarioId);
+        Optional<FavoritosReceta> receta = favoritosRecetaRepository.findById(recetaId);
+
+        if (user.isPresent() && receta.isPresent()) {
+            Users existingUser = user.get();
+            FavoritosReceta existingReceta = receta.get();
+
+            if (existingUser.getFavoritos().contains(existingReceta)) {
+                existingUser.getFavoritos().remove(existingReceta);
+                usersRepository.save(existingUser);
+                return true;
+            }
+        }
+        return false; // O lanzar una excepción si el usuario o receta no existen
+    }
+
+    // Actualizar una receta favorita
+    public FavoritosReceta actualizarFavoritosReceta(Long id, FavoritosReceta nuevosDatos) {
+        Optional<FavoritosReceta> favoritosRecetaOptional = favoritosRecetaRepository.findById(id);
 
         if (favoritosRecetaOptional.isPresent()) {
-            // Si la receta ya existe en la base de datos, la obtenemos
-            favoritosReceta = favoritosRecetaOptional.get();
-        } else {
-            // Si no existe, creamos una nueva receta y la agregamos
-            favoritosReceta = new FavoritosReceta();
-            favoritosReceta.setIdReceta(recetaId);
-            favoritosReceta.setNameReceta("Nombre de la receta");  // Esto lo puedes personalizar o buscar en otra tabla
-            favoritosReceta.setIngredientsReceta("Ingredientes de la receta");  // Lo mismo aquí
-            favoritosReceta.setPreparationReceta("Preparación de la receta");  // Lo mismo
-            favoritosReceta.setImageReceta("URL de la imagen de la receta");  // URL de la imagen, si la tienes
+            FavoritosReceta favoritosReceta = favoritosRecetaOptional.get();
+            favoritosReceta.setIdReceta(nuevosDatos.getIdReceta());
+            favoritosReceta.setNameReceta(nuevosDatos.getNameReceta());
+            favoritosReceta.setIngredientsReceta(nuevosDatos.getIngredientsReceta());
+            favoritosReceta.setPreparationReceta(nuevosDatos.getPreparationReceta());
+            favoritosReceta.setImageReceta(nuevosDatos.getImageReceta());
+            return favoritosRecetaRepository.save(favoritosReceta);
         }
-
-        // Agregar la receta a los favoritos del usuario
-        favoritosReceta.getListUser().add(user);
-        favoritosRecetaRepository.save(favoritosReceta);
-
-        return favoritosReceta;
+        return null;  // O lanzar excepción si no se encuentra la receta favorita
     }
 
-    // Método para quitar una receta de los favoritos de un usuario
-    @Transactional
-    public void quitarDeFavoritos(Long userId, Long recetaId) {
-        // Buscar el usuario
-        Optional<Users> userOptional = usersRepository.findById(userId);
-        if (!userOptional.isPresent()) {
-            throw new RuntimeException("Usuario no encontrado");
+    // Eliminar una receta favorita
+    public boolean eliminarFavoritosReceta(Long id) {
+        Optional<FavoritosReceta> favoritosRecetaOptional = favoritosRecetaRepository.findById(id);
+        if (favoritosRecetaOptional.isPresent()) {
+            favoritosRecetaRepository.deleteById(id);
+            return true;
         }
-        Users user = userOptional.get();
-
-        // Buscar la receta en favoritos
-        Optional<FavoritosReceta> favoritosRecetaOptional = favoritosRecetaRepository.findById(recetaId);
-        if (!favoritosRecetaOptional.isPresent()) {
-            throw new RuntimeException("Receta no encontrada en favoritos");
-        }
-        FavoritosReceta favoritosReceta = favoritosRecetaOptional.get();
-
-        // Eliminar la receta de los favoritos del usuario
-        favoritosReceta.getListUser().remove(user);
-
-        // Si no hay más usuarios que tengan esta receta en favoritos, la eliminamos de la base de datos
-        if (favoritosReceta.getListUser().isEmpty()) {
-            favoritosRecetaRepository.delete(favoritosReceta);
-        } else {
-            favoritosRecetaRepository.save(favoritosReceta);
-        }
-    }
-
-    // Método para obtener las recetas favoritas de un usuario
-    public List<FavoritosReceta> obtenerFavoritosPorUsuario(Long userId) {
-        // Buscar el usuario
-        Optional<Users> userOptional = usersRepository.findById(userId);
-        if (!userOptional.isPresent()) {
-            throw new RuntimeException("Usuario no encontrado");
-        }
-        Users user = userOptional.get();
-
-        // Obtener todas las recetas que este usuario tiene en sus favoritos
-        return favoritosRecetaRepository.findByListUserContaining(user);
+        return false;  // O lanzar una excepción si no se encuentra la receta favorita
     }
 }
