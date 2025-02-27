@@ -1,6 +1,7 @@
 package backend.niamniamapp.controllers;
 
 import backend.niamniamapp.models.FavoritosReceta;
+import backend.niamniamapp.models.Users;
 import backend.niamniamapp.services.FavoritosRecetaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,19 +21,6 @@ public class FavoritosRecetaController {
     public FavoritosRecetaController(FavoritosRecetaService favoritosRecetaService) {
         this.favoritosRecetaService = favoritosRecetaService;
     }
-
-    // Crear una receta favorita
-    @PostMapping("/add")
-    public ResponseEntity<?> crearFavoritosReceta(@RequestBody FavoritosReceta favoritosReceta) {
-        FavoritosReceta createdReceta = favoritosRecetaService.crearFavoritosReceta(favoritosReceta);
-
-        if (createdReceta == null) {
-            return new ResponseEntity<>("La receta ya está en favoritos", HttpStatus.CONFLICT);
-        }
-
-        return new ResponseEntity<>(createdReceta, HttpStatus.CREATED);
-    }
-
 
     // Obtener todas las recetas favoritas
     @GetMapping
@@ -61,14 +49,43 @@ public class FavoritosRecetaController {
     }
 
     // Agregar una receta a los favoritos de un usuario
-    @PostMapping("/usuario/{usuarioId}/receta/{recetaId}")
-    public ResponseEntity<FavoritosReceta> agregarRecetaAFavoritos(@PathVariable Long usuarioId, @PathVariable Long recetaId) {
-        FavoritosReceta favoritosReceta = favoritosRecetaService.agregarRecetaAFavoritos(usuarioId, recetaId);
-        if (favoritosReceta != null) {
-            return new ResponseEntity<>(favoritosReceta, HttpStatus.CREATED);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);  // Si el usuario o la receta no existen
-    }
+//    @PostMapping("/usuario/{usuarioId}/receta/{recetaId}")
+//    public ResponseEntity<FavoritosReceta> agregarRecetaAFavoritos(@PathVariable Long usuarioId, @PathVariable Long recetaId) {
+//        FavoritosReceta favoritosReceta = favoritosRecetaService.agregarRecetaAFavoritos(usuarioId, recetaId);
+//        if (favoritosReceta != null) {
+//            return new ResponseEntity<>(favoritosReceta, HttpStatus.CREATED);
+//        }
+//        return new ResponseEntity<>(HttpStatus.NOT_FOUND);  // Si el usuario o la receta no existen
+//    }
+//
+//    // Crear una receta favorita
+//    @PostMapping("/add")
+//    public ResponseEntity<?> crearFavoritosReceta(@RequestBody FavoritosReceta favoritosReceta) {
+//        FavoritosReceta createdReceta = favoritosRecetaService.crearFavoritosReceta(favoritosReceta);
+//
+//        if (createdReceta == null) {
+//            return new ResponseEntity<>("La receta ya está en favoritos", HttpStatus.CONFLICT);
+//        }
+//
+//        return new ResponseEntity<>(createdReceta, HttpStatus.CREATED);
+//    }
+
+//// Agregar una receta a los favoritos de un usuario
+//    @PostMapping("/add/{userId}")
+//    public ResponseEntity<String> agregarRecetaAFavoritos(
+//            @PathVariable Long usuarioId,
+//            @RequestBody FavoritosReceta favoritosReceta) {
+//        // Usar el servicio para agregar la receta a los favoritos
+//        FavoritosReceta resultado = favoritosRecetaService.agregarRecetaAFavoritos(usuarioId, favoritosReceta);
+//
+//        if (resultado == null) {
+//            return new ResponseEntity<>("La receta ya está en los favoritos o el usuario/receta no existe.", HttpStatus.CONFLICT);
+//        }
+//        return new ResponseEntity<>("Receta agregada a los favoritos exitosamente.", HttpStatus.CREATED);
+//    }
+
+
+
 
     // Eliminar una receta de los favoritos de un usuario
     @DeleteMapping("/usuario/{usuarioId}/receta/{recetaId}")

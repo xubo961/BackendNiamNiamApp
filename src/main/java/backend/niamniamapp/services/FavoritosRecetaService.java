@@ -23,16 +23,6 @@ public class FavoritosRecetaService {
         this.usersRepository = usersRepository;
     }
 
-    // Crear una receta favorita evitando duplicados
-    public FavoritosReceta crearFavoritosReceta(FavoritosReceta favoritosReceta) {
-        if (favoritosRecetaRepository.findByIdReceta(favoritosReceta.getIdReceta()).isPresent()) {
-            throw new IllegalStateException("La receta ya está en favoritos");
-        }
-        return favoritosRecetaRepository.save(favoritosReceta);
-    }
-
-
-
     // Obtener todas las recetas favoritas
     public List<FavoritosReceta> obtenerTodosFavoritos() {
         return favoritosRecetaRepository.findAll();
@@ -52,31 +42,11 @@ public class FavoritosRecetaService {
         return null; // O lanzar una excepción si el usuario no existe
     }
 
-    // Agregar una receta a los favoritos de un usuario
-    @Transactional
-    public FavoritosReceta agregarRecetaAFavoritos(Long usuarioId, Long recetaId) {
-        Optional<Users> user = usersRepository.findById(usuarioId);
-        Optional<FavoritosReceta> receta = favoritosRecetaRepository.findById(recetaId);
-
-        if (user.isPresent() && receta.isPresent()) {
-            Users existingUser = user.get();
-            FavoritosReceta existingReceta = receta.get();
-
-            // Verificar si la receta ya está en los favoritos del usuario
-            if (!existingUser.getFavoritos().contains(existingReceta)) {
-                existingUser.getFavoritos().add(existingReceta);
-                usersRepository.save(existingUser);
-            }
-            return existingReceta;
-        }
-        return null;  // O lanzar una excepción si el usuario o la receta no existen
-    }
-
 //    // Agregar una receta a los favoritos de un usuario
 //    @Transactional
-//    public FavoritosReceta agregarRecetaAFavoritos(Long usuarioId, FavoritosReceta favoritosReceta) {
+//    public FavoritosReceta agregarRecetaAFavoritos(Long usuarioId, Long recetaId) {
 //        Optional<Users> user = usersRepository.findById(usuarioId);
-//        Optional<FavoritosReceta> receta = favoritosRecetaRepository.findById(favoritosReceta.getId());
+//        Optional<FavoritosReceta> receta = favoritosRecetaRepository.findById(recetaId);
 //
 //        if (user.isPresent() && receta.isPresent()) {
 //            Users existingUser = user.get();
@@ -85,13 +55,42 @@ public class FavoritosRecetaService {
 //            // Verificar si la receta ya está en los favoritos del usuario
 //            if (!existingUser.getFavoritos().contains(existingReceta)) {
 //                existingUser.getFavoritos().add(existingReceta);
-//                favoritosRecetaRepository.save(favoritosReceta);
 //                usersRepository.save(existingUser);
 //            }
 //            return existingReceta;
 //        }
 //        return null;  // O lanzar una excepción si el usuario o la receta no existen
 //    }
+//
+//
+//    // Crear una receta favorita evitando duplicados
+//    public FavoritosReceta crearFavoritosReceta(FavoritosReceta favoritosReceta) {
+//        if (favoritosRecetaRepository.findByIdReceta(favoritosReceta.getIdReceta()).isPresent()) {
+//            throw new IllegalStateException("La receta ya está en favoritos");
+//        }
+//        return favoritosRecetaRepository.save(favoritosReceta);
+//    }
+
+    // Agregar una receta a los favoritos de un usuario
+    @Transactional
+    public FavoritosReceta agregarRecetaAFavoritos(Long usuarioId, FavoritosReceta favoritosReceta) {
+        Optional<Users> user = usersRepository.findById(usuarioId);
+        Optional<FavoritosReceta> receta = favoritosRecetaRepository.findById(favoritosReceta.getId());
+
+        if (user.isPresent() && receta.isPresent()) {
+            Users existingUser = user.get();
+            FavoritosReceta existingReceta = receta.get();
+
+            // Verificar si la receta ya está en los favoritos del usuario
+            if (!existingUser.getFavoritos().contains(existingReceta)) {
+                existingUser.getFavoritos().add(existingReceta);
+                favoritosRecetaRepository.save(favoritosReceta);
+                usersRepository.save(existingUser);
+            }
+            return existingReceta;
+        }
+        return null;  // O lanzar una excepción si el usuario o la receta no existen
+    }
 
     // Eliminar una receta de los favoritos de un usuario
     @Transactional
