@@ -61,8 +61,7 @@ public class FavoritosRecetaService {
 //        }
 //        return null;  // O lanzar una excepción si el usuario o la receta no existen
 //    }
-//
-//
+
 //    // Crear una receta favorita evitando duplicados
 //    public FavoritosReceta crearFavoritosReceta(FavoritosReceta favoritosReceta) {
 //        if (favoritosRecetaRepository.findByIdReceta(favoritosReceta.getIdReceta()).isPresent()) {
@@ -71,26 +70,78 @@ public class FavoritosRecetaService {
 //        return favoritosRecetaRepository.save(favoritosReceta);
 //    }
 
-    // Agregar una receta a los favoritos de un usuario
+//    // Agregar una receta a los favoritos de un usuario
+//    @Transactional
+//    public FavoritosReceta agregarRecetaAFavoritos(Long usuarioId, FavoritosReceta favoritosReceta) {
+//        Optional<Users> user = usersRepository.findById(usuarioId);
+//        Optional<FavoritosReceta> receta = favoritosRecetaRepository.findById(favoritosReceta.getId());
+//
+//        if (user.isPresent() && receta.isPresent()) {
+//            Users existingUser = user.get();
+//            FavoritosReceta existingReceta = receta.get();
+//
+//            // Verificar si la receta ya está en los favoritos del usuario
+//            if (!existingUser.getFavoritos().contains(existingReceta)) {
+//                existingUser.getFavoritos().add(existingReceta);
+//                favoritosRecetaRepository.save(favoritosReceta);
+//                usersRepository.save(existingUser);
+//            }
+//            return existingReceta;
+//        }
+//        return null;  // O lanzar una excepción si el usuario o la receta no existen
+//    }
+
+//    // Agregar una receta a los favoritos de un usuario
+//    @Transactional
+//    public FavoritosReceta agregarRecetaAFavoritos(Long usuarioId, FavoritosReceta favoritosReceta) {
+//        Optional<Users> user = usersRepository.findById(usuarioId);
+//        Optional<FavoritosReceta> receta = favoritosRecetaRepository.findById(favoritosReceta.getId());
+//
+//        if (user.isEmpty() || receta.isEmpty()) {
+//            throw new RuntimeException("Usuario o receta no encontrados");
+//        }
+//
+//        Users existingUser = user.get();
+//        FavoritosReceta existingReceta = receta.get();
+//
+//        if (!existingUser.getFavoritos().contains(existingReceta)) {
+//            existingUser.getFavoritos().add(existingReceta);
+//            favoritosRecetaRepository.save(existingReceta);
+//            usersRepository.save(existingUser);
+//        }
+//        return existingReceta;
+//    }
+
     @Transactional
-    public FavoritosReceta agregarRecetaAFavoritos(Long usuarioId, FavoritosReceta favoritosReceta) {
+    public FavoritosReceta agregarOCrearRecetaAFavoritos(Long usuarioId, FavoritosReceta nuevaReceta) {
         Optional<Users> user = usersRepository.findById(usuarioId);
-        Optional<FavoritosReceta> receta = favoritosRecetaRepository.findById(favoritosReceta.getId());
 
-        if (user.isPresent() && receta.isPresent()) {
+        if (user.isPresent()) {
             Users existingUser = user.get();
-            FavoritosReceta existingReceta = receta.get();
 
-            // Verificar si la receta ya está en los favoritos del usuario
-            if (!existingUser.getFavoritos().contains(existingReceta)) {
-                existingUser.getFavoritos().add(existingReceta);
-                favoritosRecetaRepository.save(favoritosReceta);
+            // Verificar si la receta ya existe en el repositorio
+            Optional<FavoritosReceta> recetaExistente = favoritosRecetaRepository.findByIdReceta(nuevaReceta.getIdReceta());
+            FavoritosReceta receta;
+
+            if (recetaExistente.isPresent()) {
+                receta = recetaExistente.get();
+            } else {
+                // Crear y guardar la nueva receta
+                receta = favoritosRecetaRepository.save(nuevaReceta);
+            }
+
+            // Agregar la receta a los favoritos del usuario si aún no está
+            if (!existingUser.getFavoritos().contains(receta)) {
+                existingUser.getFavoritos().add(receta);
                 usersRepository.save(existingUser);
             }
-            return existingReceta;
+
+            return receta;
         }
-        return null;  // O lanzar una excepción si el usuario o la receta no existen
+
+        return null;
     }
+
 
     // Eliminar una receta de los favoritos de un usuario
     @Transactional

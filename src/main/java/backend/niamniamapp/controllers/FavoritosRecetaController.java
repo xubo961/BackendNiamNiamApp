@@ -57,7 +57,7 @@ public class FavoritosRecetaController {
 //        }
 //        return new ResponseEntity<>(HttpStatus.NOT_FOUND);  // Si el usuario o la receta no existen
 //    }
-//
+
 //    // Crear una receta favorita
 //    @PostMapping("/add")
 //    public ResponseEntity<?> crearFavoritosReceta(@RequestBody FavoritosReceta favoritosReceta) {
@@ -70,22 +70,40 @@ public class FavoritosRecetaController {
 //        return new ResponseEntity<>(createdReceta, HttpStatus.CREATED);
 //    }
 
-//// Agregar una receta a los favoritos de un usuario
-//    @PostMapping("/add/{userId}")
-//    public ResponseEntity<String> agregarRecetaAFavoritos(
+//    @PostMapping("/usuario/{usuarioId}/agregar")
+//    public ResponseEntity<?> agregarRecetaAFavoritos(
 //            @PathVariable Long usuarioId,
 //            @RequestBody FavoritosReceta favoritosReceta) {
-//        // Usar el servicio para agregar la receta a los favoritos
-//        FavoritosReceta resultado = favoritosRecetaService.agregarRecetaAFavoritos(usuarioId, favoritosReceta);
-//
-//        if (resultado == null) {
-//            return new ResponseEntity<>("La receta ya está en los favoritos o el usuario/receta no existe.", HttpStatus.CONFLICT);
+//        try {
+//            FavoritosReceta recetaAgregada = favoritosRecetaService.agregarRecetaAFavoritos(usuarioId, favoritosReceta);
+//            if (recetaAgregada != null) {
+//                return ResponseEntity.ok(recetaAgregada);
+//            } else {
+//                return ResponseEntity.notFound().build();
+//            }
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al agregar la receta: " + e.getMessage());
 //        }
-//        return new ResponseEntity<>("Receta agregada a los favoritos exitosamente.", HttpStatus.CREATED);
 //    }
 
+    @PostMapping("/add/{usuarioId}")
+    public ResponseEntity<FavoritosReceta> agregarOCrearRecetaAFavoritos(
+            @PathVariable Long usuarioId,
+            @RequestBody FavoritosReceta nuevaReceta) {
+        try {
+            FavoritosReceta recetaGuardada = favoritosRecetaService.agregarOCrearRecetaAFavoritos(usuarioId, nuevaReceta);
 
-
+            if (recetaGuardada != null) {
+                return ResponseEntity.ok(recetaGuardada);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 
     // Eliminar una receta de los favoritos de un usuario
     @DeleteMapping("/usuario/{usuarioId}/receta/{recetaId}")
