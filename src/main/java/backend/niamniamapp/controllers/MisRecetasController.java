@@ -5,6 +5,8 @@ import backend.niamniamapp.services.MisRecetasService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/recetas")
 public class MisRecetasController {
@@ -13,6 +15,17 @@ public class MisRecetasController {
 
     public MisRecetasController(MisRecetasService misRecetasService) {
         this.misRecetasService = misRecetasService;
+    }
+
+    @GetMapping("/usuario/{usuarioId}")
+    public ResponseEntity<List<MisRecetas>> obtenerMisRecetas(@PathVariable Long usuarioId) {
+        List<MisRecetas> recetas = misRecetasService.obtenerMisRecetasPorUsuario(usuarioId);
+
+        if (recetas != null && !recetas.isEmpty()) {
+            return ResponseEntity.ok(recetas);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping("/add/{usuarioId}")

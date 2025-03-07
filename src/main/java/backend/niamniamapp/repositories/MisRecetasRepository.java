@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface MisRecetasRepository extends JpaRepository<MisRecetas, Long> {
-    Optional<MisRecetas> findByIdReceta(Long idReceta); // Este método debe estar en el repositorio correcto
+    Optional<MisRecetas> findByIdReceta(Long idReceta);
 }

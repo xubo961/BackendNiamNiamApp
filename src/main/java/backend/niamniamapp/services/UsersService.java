@@ -28,33 +28,17 @@ public class UsersService {
         return this.userRepository.findAll();
     }
 
-    public Optional<Users> getUserById(Long id) {
-        return this.userRepository.findById(id);
-    }
-
-    public Optional<Users> getUserByEmail(String email) {
-        return this.userRepository.findByEmail(email);
-    }
-
-    public void deleteUserById(Long id) {
-        Users userOptional = this.userRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + id));
-        this.userRepository.delete(userOptional);
-    }
-
     public Users createUser(Users user) {
-        // Verificar si el usuario ya existe por email
         if (this.userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new RuntimeException("Usuario ya existe");
         }
 
-        // Crear un nuevo objeto de usuario
         Users newUser = new Users();
 
         newUser.setFirstName(user.getFirstName());
         newUser.setEmail(user.getEmail());
         newUser.setPassword(this.passwordEncoder.encode(user.getPassword()));
 
-        // Guardar el nuevo usuario en la base de datos
         return this.userRepository.save(newUser);
     }
 

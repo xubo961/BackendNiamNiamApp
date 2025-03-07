@@ -7,6 +7,7 @@ import backend.niamniamapp.repositories.UsersRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -20,6 +21,15 @@ public class MisRecetasService {
         this.misRecetasRepository = misRecetasRepository;
     }
 
+    public List<MisRecetas> obtenerMisRecetasPorUsuario(Long usuarioId) {
+        Optional<Users> user = usersRepository.findById(usuarioId);
+        if (user.isPresent()) {
+            return user.get().getMisrecetas();
+        }
+        return null;
+    }
+
+
     @Transactional
     public MisRecetas agregarOCrearRecetaAMisRecetas(Long usuarioId, MisRecetas nuevaReceta) {
         Optional<Users> user = usersRepository.findById(usuarioId);
@@ -27,18 +37,15 @@ public class MisRecetasService {
         if (user.isPresent()) {
             Users existingUser = user.get();
 
-            // Verificar si la receta ya existe en el repositorio por su idReceta
             Optional<MisRecetas> recetaExistente = misRecetasRepository.findByIdReceta(nuevaReceta.getIdReceta());
             MisRecetas receta;
 
             if (recetaExistente.isPresent()) {
                 receta = recetaExistente.get();
             } else {
-                // Guardar la nueva receta
                 receta = misRecetasRepository.save(nuevaReceta);
             }
 
-            // Agregar la receta a la lista del usuario si aún no está
             if (!existingUser.getMisrecetas().contains(receta)) {
                 existingUser.getMisrecetas().add(receta);
                 usersRepository.save(existingUser);
@@ -47,7 +54,7 @@ public class MisRecetasService {
             return receta;
         }
 
-        return null; // O lanzar una excepción
+        return null;
     }
 
     @Transactional
@@ -66,6 +73,6 @@ public class MisRecetasService {
             }
         }
 
-        return false; // O lanzar una excepción si no existe
+        return false;
     }
 }
