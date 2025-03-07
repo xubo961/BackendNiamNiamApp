@@ -15,31 +15,25 @@ public class MisRecetasController {
         this.misRecetasService = misRecetasService;
     }
 
-    /**
-     * Agregar una receta a "Mis Recetas" del usuario.
-     */
-    @PostMapping("/{usuarioId}")
+    @PostMapping("/add/{usuarioId}")
     public ResponseEntity<MisRecetas> agregarReceta(@PathVariable Long usuarioId, @RequestBody MisRecetas nuevaReceta) {
         MisRecetas receta = misRecetasService.agregarOCrearRecetaAMisRecetas(usuarioId, nuevaReceta);
 
         if (receta != null) {
             return ResponseEntity.ok(receta);
         } else {
-            return ResponseEntity.badRequest().build(); // O lanzar una excepción
+            return ResponseEntity.badRequest().build();
         }
     }
 
-    /**
-     * Eliminar una receta de "Mis Recetas" del usuario.
-     */
-    @DeleteMapping("/{usuarioId}/{recetaId}")
+    @DeleteMapping("/usuario/{usuarioId}/receta/{recetaId}")
     public ResponseEntity<Void> eliminarReceta(@PathVariable Long usuarioId, @PathVariable Long recetaId) {
         boolean eliminado = misRecetasService.eliminarRecetaDeMisRecetas(usuarioId, recetaId);
 
         if (eliminado) {
             return ResponseEntity.noContent().build();
         } else {
-            return ResponseEntity.notFound().build(); // O lanzar una excepción
+            return ResponseEntity.notFound().build();
         }
     }
 }
